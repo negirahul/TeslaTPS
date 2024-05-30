@@ -79,7 +79,7 @@ function Login() {
         setShowOtp(true);
 		    setOtpVisible(data.otpVisible)
         setdisabledButton(true)
-        setTime(10);
+        setTime(60);
         setStartCounter(true)
       } else {
         setGeneratedOtp(null);

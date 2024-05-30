@@ -194,119 +194,123 @@ function Profile({ userDetails }) {
       <ToastContainer />
       <HeaderBack />
       <div className="container">
+        
+        <div className="mainbody" style={{height: "90vh"}}>
+          
+          <div className="bg-white shadow profile-box my-4">
 
-        <div className="bg-white shadow profile-box my-4">
-
-          {edit == false ? 
-            <div>
-              <div className="text-end"><button className="btn btn-outline-dark" onClick={() => setEdit(true)}><Icon.Pencil/> Edit</button></div>
-              <div className="mb-2 col-12 text-center">
-                <label htmlFor="profile_image">
-                  <img src={photoURL} width={"150px"} height={"150px"} className="rounded-circle" alt="Profile Pic" />
-                </label>
+            {edit == false ? 
+              <div>
+                <div className="text-end"><button className="btn btn-outline-dark" onClick={() => setEdit(true)}><Icon.Pencil/> Edit</button></div>
+                <div className="mb-2 col-12 text-center">
+                  <label htmlFor="profile_image">
+                    <img src={photoURL} width={"150px"} height={"150px"} className="rounded-circle" alt="Profile Pic" />
+                  </label>
+                </div>
+                <ListGroup variant="flush">
+                  <ListGroup.Item><strong>Name : </strong> {inputs.name}</ListGroup.Item>
+                  <ListGroup.Item><strong>Email Address : </strong> {inputs.email_address}</ListGroup.Item>
+                  <ListGroup.Item><strong>Mobile Number : </strong> {inputs.mobile_number}</ListGroup.Item>
+                  <ListGroup.Item><strong>Company / Store Name : </strong> {inputs.company_name}</ListGroup.Item>
+                  <ListGroup.Item><strong>GST No. : </strong> {inputs.gst_no}</ListGroup.Item>
+                  <ListGroup.Item><strong>Pin Code : </strong> {inputs.pin_code}</ListGroup.Item>
+                  <ListGroup.Item><strong>State : </strong> {inputs.state_name}</ListGroup.Item>
+                  <ListGroup.Item><strong>City : </strong> {inputs.city_name}</ListGroup.Item>
+                  <ListGroup.Item><strong>Address : </strong> {inputs.address}</ListGroup.Item>
+                </ListGroup>
               </div>
-              <ListGroup variant="flush">
-                <ListGroup.Item><strong>Name : </strong> {inputs.name}</ListGroup.Item>
-                <ListGroup.Item><strong>Email Address : </strong> {inputs.email_address}</ListGroup.Item>
-                <ListGroup.Item><strong>Mobile Number : </strong> {inputs.mobile_number}</ListGroup.Item>
-                <ListGroup.Item><strong>Company / Store Name : </strong> {inputs.company_name}</ListGroup.Item>
-                <ListGroup.Item><strong>GST No. : </strong> {inputs.gst_no}</ListGroup.Item>
-                <ListGroup.Item><strong>Pin Code : </strong> {inputs.pin_code}</ListGroup.Item>
-                <ListGroup.Item><strong>State : </strong> {inputs.state_name}</ListGroup.Item>
-                <ListGroup.Item><strong>City : </strong> {inputs.city_name}</ListGroup.Item>
-                <ListGroup.Item><strong>Address : </strong> {inputs.address}</ListGroup.Item>
-              </ListGroup>
-            </div>
-            :
-            <div>
-              <div className="text-end"><button className="btn btn-outline-dark" onClick={() => setEdit(false)}><Icon.X/> Cancel</button></div>
-              <div className="mb-2 col-12 text-center">
-                {/* <div><Icon.Pencil/></div> */}
-                <label htmlFor="profile_image">
-                  <img src={photoURL} width={"150px"} height={"150px"} className="rounded-circle" alt="Profile Pic" />
-                  <input type="file" className="d-none" name="profile_image" id="profile_image" onChange={onChangePicture} />
-                </label>
+              :
+              <div>
+                <div className="text-end"><button className="btn btn-outline-dark" onClick={() => setEdit(false)}><Icon.X/> Cancel</button></div>
+                <div className="mb-2 col-12 text-center">
+                  {/* <div><Icon.Pencil/></div> */}
+                  <label htmlFor="profile_image">
+                    <img src={photoURL} width={"150px"} height={"150px"} className="rounded-circle" alt="Profile Pic" />
+                    <input type="file" className="d-none" name="profile_image" id="profile_image" onChange={onChangePicture} />
+                  </label>
+                </div>
+
+                <form onSubmit={profileSubmit}>
+
+                  <div className="mb-3">
+                    <label htmlFor="name" className="form-label">Name</label>
+                    <input type="text" name="name" id="name" className="form-control" onInput={profileChange} value={inputs.name} />
+                  </div>
+                  <div className="mb-3">
+                    <label htmlFor="email_address" className="form-label">Email Address</label>
+                    <input type="text" name="email_address" id="email_address" className="form-control" onInput={profileChange} value={inputs.email_address} />
+                  </div>
+                  <div className="mb-3">
+                    <label className="form-label">Mobile Number</label>
+                    <input type="text" className="form-control" value={inputs.mobile_number} disabled />
+                  </div>
+                  <div className="mb-3">
+                    <label htmlFor="company_name" className="form-label">Company / Store Name</label>
+                    <input type="text" name="company_name" id="company_name" className="form-control" onInput={profileChange} value={inputs.company_name} />
+                  </div>
+                  <div className="mb-3">
+                    <label htmlFor="gst_no" className="form-label">GST No.</label>
+                    <input type="text" name="gst_no" id="gst_no" className="form-control" onInput={profileChange} value={inputs.gst_no} />
+                  </div>
+                  <div className="mb-3">
+                    <label htmlFor="address" className="form-label">Address</label>
+                    <textarea name="address" id="address" className="form-control" value={inputs.address} onInput={profileChange}></textarea>
+                  </div>
+                  <div className="mb-3">
+                    <label htmlFor="pin_code" className="form-label">Pin Code</label>
+                    <input type="text" name="pin_code" id="pin_code" className="form-control" onInput={profileChange} value={inputs.pin_code} />
+                  </div>
+                  <div className="mb-3">
+                    <label htmlFor="state" className="form-label">State</label>
+                    <select className="form-control" name="state" id="state" onChange={profileChange}>
+                      <option>--- Select State ---</option>
+                      {!stateOption ? (
+                        <option>Loading data...</option>
+                      ) : stateOption.length === 0 ? (
+                        <option>No data found</option>
+                      ) : (stateOption.map((item) => (
+                        <option value={item.id} selected={item.id === inputs.state ? true : false} >{item.name}</option>
+                      ))
+                      )}
+                    </select>
+                  </div>
+
+                  <div className="mb-3">
+                    <label htmlFor="city" className="form-label">City</label>
+                    <select className="form-control" name="city" id="city" onChange={profileChange}>
+                      {/* <option>--- Select City ---</option> */}
+                      {!cityOption ? (
+                        <option>Select State First</option>
+                      ) : cityOption.length === 0 ? (
+                        <option>No data found</option>
+                      ) : (cityOption.map((item) => (
+                        <option value={item.id} selected={item.id === inputs.city ? true : false} >{item.name}</option>
+                      ))
+                      )}
+                    </select>
+                  </div>
+
+                  <Button type="submit" variant="primary" className="btn-black-form">Save Profile</Button>
+
+                </form>
               </div>
+            }
+          </div>
 
-              <form onSubmit={profileSubmit}>
+          <div className="bg-white shadow profile-box my-4">
+            <form onSubmit={passwordSubmit}>
+              <div className="mb-3">
+                <label className="form-label">Enter Password</label>
+                <input type="text" className="form-control" name="password" onInput={profileChange}/>
+              </div>
+              <div className="mb-3">
+                <label className="form-label">Confirm Password</label>
+                <input type="text" className="form-control" name="confirmpassword" onInput={profileChange}/>
+              </div>
+              <Button type="submit" variant="primary" className="btn-black-form">Change Password</Button>
+            </form>
+          </div>
 
-                <div className="mb-3">
-                  <label htmlFor="name" className="form-label">Name</label>
-                  <input type="text" name="name" id="name" className="form-control" onInput={profileChange} value={inputs.name} />
-                </div>
-                <div className="mb-3">
-                  <label htmlFor="email_address" className="form-label">Email Address</label>
-                  <input type="text" name="email_address" id="email_address" className="form-control" onInput={profileChange} value={inputs.email_address} />
-                </div>
-                <div className="mb-3">
-                  <label className="form-label">Mobile Number</label>
-                  <input type="text" className="form-control" value={inputs.mobile_number} disabled />
-                </div>
-                <div className="mb-3">
-                  <label htmlFor="company_name" className="form-label">Company / Store Name</label>
-                  <input type="text" name="company_name" id="company_name" className="form-control" onInput={profileChange} value={inputs.company_name} />
-                </div>
-                <div className="mb-3">
-                  <label htmlFor="gst_no" className="form-label">GST No.</label>
-                  <input type="text" name="gst_no" id="gst_no" className="form-control" onInput={profileChange} value={inputs.gst_no} />
-                </div>
-                <div className="mb-3">
-                  <label htmlFor="address" className="form-label">Address</label>
-                  <textarea name="address" id="address" className="form-control" value={inputs.address} onInput={profileChange}></textarea>
-                </div>
-                <div className="mb-3">
-                  <label htmlFor="pin_code" className="form-label">Pin Code</label>
-                  <input type="text" name="pin_code" id="pin_code" className="form-control" onInput={profileChange} value={inputs.pin_code} />
-                </div>
-                <div className="mb-3">
-                  <label htmlFor="state" className="form-label">State</label>
-                  <select className="form-control" name="state" id="state" onChange={profileChange}>
-                    <option>--- Select State ---</option>
-                    {!stateOption ? (
-                      <option>Loading data...</option>
-                    ) : stateOption.length === 0 ? (
-                      <option>No data found</option>
-                    ) : (stateOption.map((item) => (
-                      <option value={item.id} selected={item.id === inputs.state ? true : false} >{item.name}</option>
-                    ))
-                    )}
-                  </select>
-                </div>
-
-                <div className="mb-3">
-                  <label htmlFor="city" className="form-label">City</label>
-                  <select className="form-control" name="city" id="city" onChange={profileChange}>
-                    {/* <option>--- Select City ---</option> */}
-                    {!cityOption ? (
-                      <option>Select State First</option>
-                    ) : cityOption.length === 0 ? (
-                      <option>No data found</option>
-                    ) : (cityOption.map((item) => (
-                      <option value={item.id} selected={item.id === inputs.city ? true : false} >{item.name}</option>
-                    ))
-                    )}
-                  </select>
-                </div>
-
-                <Button type="submit" variant="primary" className="btn-black-form">Save Profile</Button>
-
-              </form>
-            </div>
-          }
-        </div>
-
-        <div className="bg-white shadow profile-box my-4">
-          <form onSubmit={passwordSubmit}>
-            <div className="mb-3">
-              <label className="form-label">Enter Password</label>
-              <input type="text" className="form-control" name="password" onInput={profileChange}/>
-            </div>
-            <div className="mb-3">
-              <label className="form-label">Confirm Password</label>
-              <input type="text" className="form-control" name="confirmpassword" onInput={profileChange}/>
-            </div>
-            <Button type="submit" variant="primary" className="btn-black-form">Change Password</Button>
-          </form>
         </div>
 
         <Modal show={modalShow.show} onHide={() => setModalShow({ show: false, title: '' })} size="sm" aria-labelledby="contained-modal-title-vcenter" centered>

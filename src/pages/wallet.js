@@ -76,7 +76,7 @@ function Wallet({ userDetails }) {
       <HeaderBack />
 
       <div className="container">
-
+        <div className="mainbody" style={{height: "90vh"}}>
         {!walletDetails ? ''
           : walletDetails.length === 0 ?
             <div className="empty-box shadow my-4 text-center">
@@ -147,6 +147,7 @@ function Wallet({ userDetails }) {
               }
             </div>
         }
+        </div>
 
       </div>
 

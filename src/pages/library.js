@@ -126,6 +126,7 @@ function Library({ userDetails }) {
           </div>
         </div>
 
+        <div className="mainbody" style={{height: "75vh"}}>
         {
         !showMedia ? 
 
@@ -195,6 +196,7 @@ function Library({ userDetails }) {
           )}
         </div>
         }
+        </div>
 
       </div>
 
