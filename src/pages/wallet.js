@@ -88,8 +88,8 @@ function Wallet({ userDetails }) {
             <div>
               <div className="empty-box shadow my-4">
                 <div className="text-center main-abmount">
-                  <h2>&#8377; {walletDetails.wallet}</h2>
-                  <span>WALLET BALANCE</span>
+                  <h2>{walletDetails.wallet}</h2>
+                  <span>WALLET POINTS</span>
                 </div>
 
                 <div className="row">

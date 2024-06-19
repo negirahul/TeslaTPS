@@ -14,12 +14,31 @@ import axios from "axios";
 
 function RegisterWarranty({ userDetails }) {
 
+  const getFormattedDate = (ddate, type) => {
+    let dd = new Date(ddate);
+
+    let day = dd.getDate();
+    let month = dd.toLocaleString('en-US', { month: 'short' });
+    let year = dd.getFullYear();
+
+    if (type === 'day')
+      return day
+    else if (type === 'month')
+      return month
+    else if (type === 'year')
+      return year
+    else if (type === 'day_month_year')
+      return day + ' ' + month + ' ' + year
+    else if (type === 'month_year')
+      return month + ' ' + year
+  }
+
   const [AllCustomer, setAllCustomer] = useState([]);
   useEffect(() => {
     getAllCustomer();
   }, [userDetails])
   function getAllCustomer() {
-    axios.get(process.env.REACT_APP_ADMIN_URL + 'userList.php?user_type=1').then(function (response) {
+    axios.get(process.env.REACT_APP_ADMIN_URL + 'userWithWarranty.php?user_type=1').then(function (response) {
       var data = response.data;
       if (data.statusCode === 200) {
         setAllCustomer(data.data);
@@ -105,6 +124,16 @@ function RegisterWarranty({ userDetails }) {
               <ListGroup.Item><strong>State : </strong> {infoData.state_name}</ListGroup.Item>
               <ListGroup.Item><strong>City : </strong> {infoData.city_name}</ListGroup.Item>
               <ListGroup.Item><strong>Address : </strong> {infoData.address}</ListGroup.Item>
+              <ListGroup.Item>
+                {infoData.warranty.length > 0 ? 
+                  <table className="table table-bordered" style={{width:'100%'}}>
+                    <tr><th>Model</th><th>Date</th></tr>
+                    {infoData.warranty.map((item) => 
+                      <tr><td>{item.model_name}<br/>{item.model_description}</td><td>{getFormattedDate(item.ddate, 'day_month_year')}</td></tr>
+                    )}
+                  </table>
+                : ''}
+              </ListGroup.Item>
             </ListGroup>
           : 
             <ListGroup variant="flush">

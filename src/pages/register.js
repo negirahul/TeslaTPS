@@ -41,6 +41,7 @@ function Register() {
   }
 
   const [showOtp, setShowOtp] = useState(false);
+  const [otpVisible, setOtpVisible] = useState(false);
   const verifyNumber = () => {
     console.log(inputs);
     if (inputs === undefined) { notify("alert", "Please Enter Your Phone number"); return; }
@@ -52,6 +53,7 @@ function Register() {
       if (data.statusCode === 200) {
         setInputs(values => ({ ...values, generated_otp: data.otp }));
         setShowOtp(true);
+        setOtpVisible(data.otpVisible)
       } else {
         console.log(data.msg);
         notify("alert", data.msg);
@@ -69,7 +71,7 @@ function Register() {
     if (inputs.entered_otp === undefined && inputs.entered_otp === '') { notify("alert", "Please Enter OTP"); return; }
     if (inputs.state === undefined && inputs.state === '') { notify("alert", "Please Select Your State"); return; }
     if (inputs.city === undefined && inputs.city === '') { notify("alert", "Please Select Your City"); return; }
-    if (inputs.password === undefined && inputs.password === '') { notify("alert", "Please Select Your Password"); return; }
+    // if (inputs.password === undefined && inputs.password === '') { notify("alert", "Please Select Your Password"); return; }
     if (inputs.generated_otp != inputs.entered_otp) { notify("alert", "Please Enter Correct OTP"); return; }
 
     axios.post(process.env.REACT_APP_ADMIN_URL + 'register.php', { inputs, user_type: 3 }).then(function (response) {
@@ -148,7 +150,7 @@ function Register() {
                 {showOtp ?
                   <div>
                     <div className="mb-2">
-                      <label htmlFor="entered_otp" className="form-label">Enter OTP <span className="text-danger">{inputs.generated_otp}</span></label>
+                      <label htmlFor="entered_otp" className="form-label">Enter OTP <span className="text-danger">{otpVisible==true ? inputs.generated_otp : ''}</span></label>
                       <input type="number" className="form-control" name="entered_otp" id="entered_otp" onChange={registerChange} />
                     </div>
 
@@ -187,10 +189,10 @@ function Register() {
                       </select>
                     </div>
 
-                    <div className="mb-2">
+                    {/* <div className="mb-2">
                       <label htmlFor="password" className="form-label">Password</label>
                       <input type="password" className="form-control" name="password" id="password" onChange={registerChange} />
-                    </div>
+                    </div> */}
 
                     <div className="mb-2">
                       <label htmlFor="reffercode" className="form-label">Reffer Code (optional)</label>

@@ -9,13 +9,10 @@ import '@splidejs/react-splide/css';
 import { useCookies } from 'react-cookie';
 import axios from "axios";
 
-import { RateApp } from 'capacitor-rate-app';
-
 function Dashboard({ userDetails }) {
 
   const handleClick = () => {
     window.location.replace('https://www.google.com/maps/place/Tesla+Power+USA/@28.4081582,76.9969146,15z/data=!4m8!3m7!1s0x390d3dea485bdd89:0x2431271bcede0307!8m2!3d28.4081582!4d76.9969146!9m1!1b1!16s%2Fg%2F11r70tjnwq?entry=ttu');
-    // RateApp.requestReview();
   };
 
   const navigate = useNavigate();
@@ -98,7 +95,7 @@ function Dashboard({ userDetails }) {
 
             <div className="d-flex align-items-center">
               <div className="w-25 icon-2"><Icon.Wallet /></div>
-              <div className="w-50 wallet-text">&#8377; {walletDetails.wallet}<span>Your Wallet Balance</span></div>
+              <div className="w-50 wallet-text">{walletDetails.wallet}<span>Your Wallet Points</span></div>
               <div className="drop-btn w-25 text-white"><Link className="text-white" to={'../wallet'}><Icon.ThreeDotsVertical /></Link></div>
             </div>
           </div>

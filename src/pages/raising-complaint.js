@@ -78,14 +78,13 @@ function RaisingComplaint({ userDetails }) {
     });
   }
 
-  const [compDepartment, setCompDepartment] = useState([]);
+  const [compGroup, setCompGroup] = useState([]);
   const [compSubject, setCompSubject] = useState([]);
   const getExtraDetails = () => {
     axios.get(process.env.REACT_APP_ADMIN_URL + 'service-complaint-extraData.php').then(function (response) {
       var data = response.data;
       if (data.statusCode === 200) {
-        setCompDepartment(data.department);
-        setCompSubject(data.subject);
+        setCompGroup(data.group);
       }
     });
   }
@@ -147,23 +146,59 @@ function RaisingComplaint({ userDetails }) {
 
   const [inputs, setInputs] = useState([]);
   const complaintChange = (event) => {
-    const name = event.target.name;
-    const value = event.target.value;
-    console.log(value);
+    var name = event.target.name;
+    var value = event.target.value;
+    if(name == 'group_id'){
+      setCompSubject([])
+      compGroup.forEach((group, index) => {
+        if(group.id == value){
+          setCompSubject(group.subject);
+        }
+      })
+    }
+    if(name === 'update_address') {
+      if(event.target.checked)
+        value = "Yes";
+      else
+        value = "No";
+    }
     setInputs(values => ({ ...values, [name]: value }));
+    if(name === 'product')  setSerialNoVerify(false);
     if(name == 'com_state') fetchCityData(value);
   }
 
+  const [verifiedSerialNo, setVerifiedSerialNo] = useState([])
+  const [serialNoVerify, setSerialNoVerify] = useState(false)
+  const checkSerialNo = () => {
+    if(inputs.product === undefined || inputs.product === ''){notify("alert","Please Enter Your Serial No");return;}
+    axios.post( process.env.REACT_APP_ADMIN_URL + 'checkSerialNoForComplaint.php', {product:inputs.product}).then(function(response){
+      var data = response.data;
+      if(data.statusCode === 200){
+        setSerialNoVerify(true);
+        setVerifiedSerialNo(data.data)
+      }else if(data.statusCode === 201){
+        setSerialNoVerify(false);
+        setVerifiedSerialNo([])
+        notify("alert",data.msg);
+      }
+    });
+  }
+
+
   const complaintSubmit = (event) => {
     event.preventDefault();
-    if(inputs.department === undefined || inputs.department === ''){  notify("alert","Please Select Department");return;  }
+    if(inputs.group_id === undefined || inputs.group_id === ''){  notify("alert","Please Select Group");return;  }
     if(inputs.subject === undefined || inputs.subject === ''){  notify("alert","Please Select Subject");return;  }
     if(inputs.product === undefined || inputs.product === ''){  notify("alert","Please Select Product");return;  }
-    if(inputs.com_state === undefined || inputs.com_state === ''){  notify("alert","Please Select Customer State");return;  }
-    if(inputs.com_city === undefined || inputs.com_city === ''){  notify("alert","Please Select Customer City");return;  }
-    if(inputs.com_address === undefined || inputs.com_address === ''){  notify("alert","Please Enter Customer Address");return;  }
-    if(inputs.com_pin_code === undefined || inputs.com_pin_code === ''){  notify("alert","Please Enter Customer Pincode");return;  }
-    if(inputs.com_mobile_number === undefined || inputs.com_mobile_number === ''){  notify("alert","Please Enter Customer Mobile Number");return;  }
+    
+    if(inputs.update_address !== undefined && inputs.update_address == "Yes"){
+      if(inputs.com_state === undefined || inputs.com_state === ''){  notify("alert","Please Select Customer State");return;  }
+      if(inputs.com_city === undefined || inputs.com_city === ''){  notify("alert","Please Select Customer City");return;  }
+      if(inputs.com_address === undefined || inputs.com_address === ''){  notify("alert","Please Enter Customer Address");return;  }
+      if(inputs.com_pin_code === undefined || inputs.com_pin_code === ''){  notify("alert","Please Enter Customer Pincode");return;  }
+    }
+
+    // if(inputs.com_mobile_number === undefined || inputs.com_mobile_number === ''){  notify("alert","Please Enter Customer Mobile Number");return;  }
     if(inputs.complaint === undefined || inputs.complaint === ''){  notify("alert","Please Enter Your Complaint");return;  }
     
     setdisabledButton(true);
@@ -219,15 +254,20 @@ function RaisingComplaint({ userDetails }) {
             )
             : (complaintDetails.map((item) => (
               <div className="empty-box-2 shadow my-4">
-                <h5>{item.subject}</h5>
+                <h5>{item.subject_name}</h5>
                 <h5>{item.product}</h5>
                 <span>Ticket No. TK{String(item.id).padStart(10, '0')} | Date: {getFormattedDate(item.ddate,'day_month_year')}</span>
                 <hr />
                 <div className="d-flex align-items-center icon-box-4">
-                  {item.complaint_by === userDetails.id ? 
+                  {/* {item.complaint_by === userDetails.id ? 
                     <div className="w-100 text-center border-end" onClick={() => handleShow3(item.id)}><Icon.ReplyAll className="icon-color" /> Reply</div>
-                  : ''}
-                  <div className="w-100 text-center border-end" onClick={() => handleShow2(item.complaint, getFormattedDate(item.ddate,'day_month_year'), item.comArray)}><Icon.CardText className="icon-color" /> {item.comCount}</div>
+                  : ''} */}
+                  {/* <div className="w-100 text-center border-end" onClick={() => handleShow2(item.complaint, getFormattedDate(item.ddate,'day_month_year'), item.comArray)}><Icon.CardText className="icon-color" /> {item.comCount}</div> */}
+                  <div className="w-100 text-center border-end">
+                    {item.complaint_status == 0 ? 'Pending' : 
+                      item.complaint_status == 1 ? 'Resolved' : ''
+                    }
+                  </div>
                   <div className="w-100 text-center" onClick={() => handleShowInfo(item)}><Icon.InfoCircle className="icon-color" /></div>
                 </div>
               </div>
@@ -244,97 +284,134 @@ function RaisingComplaint({ userDetails }) {
         </Modal.Header>
         <Modal.Body>
           <form onSubmit={complaintSubmit}>
-            <div className="mb-3">
-              <label htmlFor="department" className="form-label">Select Department</label>
-              <select className="form-control" name="department" id="department" onChange={complaintChange}>
-                <option value="">Select Department</option>
-                {/* <option value="Technical">Technical</option>
-                <option value="Account">Account</option> */}
-                {!compDepartment ? '' 
-                : compDepartment.compDepartment === 0 ? 
-                  <option>No data found</option>
-                : (compDepartment.map((item) => 
-                  <option>{item.department_name}</option>
-                )
-                )}
-              </select>
+            <div className="row">
+              <div className="col-12 mb-3">
+                <label htmlFor="group_id" className="form-label">Product Group</label>
+                <select className="form-control" name="group_id" id="group_id" onChange={complaintChange}>
+                  <option value="">Select Product Group</option>
+                  {/* <option value="Technical">Technical</option>
+                  <option value="Account">Account</option> */}
+                  {!compGroup ? '' 
+                  : compGroup.length === 0 ? 
+                    <option value="">No data found</option>
+                  : (compGroup.map((item) => 
+                    <option value={item.id}>{item.group_name}</option>
+                  )
+                  )}
+                </select>
+              </div>
+              <div className="col-12 mb-3">
+                <label htmlFor="subject" className="form-label">Complaint Subject</label>
+                <select className="form-control" name="subject" id="subject" onChange={complaintChange}>
+                  <option value="">Select Subject</option>
+                  {/* <option>Battery not charge properly</option> */}
+                  {!compSubject ? ''
+                  : compSubject.length === 0 ? 
+                    <option value="">No data found</option>
+                  : (compSubject.map((item) => 
+                    <option value={item.id}>{item.subject_name}</option>
+                  )
+                  )}
+                </select>
+              </div>
+              {/* <div className="col-12 mb-3">
+                <label htmlFor="product" className="form-label">Product Serial Number</label>
+                <select className="form-control" name="product" id="product" onChange={complaintChange}>
+                  <option value="">Select Category</option>
+                  {!productDetails ? (
+                      <option>Loading data...</option>
+                    ) : productDetails.length === 0 ? (
+                      <option>No data found</option>
+                    ) : (productDetails.map((item) => (
+                      <option value={item.name} data-key={item.models} >{item.name}</option>
+                    ))
+                  )}
+                </select>
+                <input type="text" className="form-control" name="product" id="product" onInput={complaintChange}/>
+              </div> */}
+
+              <div className="mb-3">
+                <label htmlFor="product" className="form-label">Product Serial Number</label>
+                <div className="input-group mb-3">
+                  <input type="text" className="form-control" name="product" id="product" aria-describedby="button-addon2" onInput={complaintChange} />
+                  <button className="btn btn-dark" type="button" id="button-addon2" onClick={checkSerialNo}>Check</button>
+                </div>
+              </div>
+
+              {serialNoVerify === false ? '' :
+                !verifiedSerialNo ? '' : verifiedSerialNo.length === 0 ? '' : 
+                <>
+                  <p>
+                    <strong>Product : </strong> {verifiedSerialNo.cat_name}<br/>
+                    <strong>Model : </strong> {verifiedSerialNo.model_name}<br/>
+                    <strong>Model Description : </strong> {verifiedSerialNo.model_description}<br/>
+                    <strong>Customer Mobile No. : </strong> {verifiedSerialNo.mobile_number}
+                    <hr/>
+                  </p>
+
+                  <div className="col-12 mb-3">
+                    <div class="form-check">
+                      <input type="checkbox" class="form-check-input" name="update_address" id="update_address" value="Yes" onChange={complaintChange}/>
+                      <label class="form-check-label" for="update_address">Check, if you want to update address</label>
+                    </div>
+                  </div>
+
+                  {!inputs.update_address ? '' : inputs.update_address == "Yes" ? 
+                    <>
+                      <div className="col-6 mb-3">
+                        <label htmlFor="com_state" className="form-label">State</label>
+                        <select className="form-control" name="com_state" id="com_state" onChange={complaintChange}>
+                          <option value="">--- Select State ---</option>
+                          {!stateOption ? (
+                            <option>Loading data...</option>
+                          ) : stateOption.length === 0 ? (
+                            <option>No data found</option>
+                          ) : (stateOption.map((item) => (
+                            <option value={item.id} >{item.name}</option>
+                          ))
+                          )}
+                        </select>
+                      </div>
+                      <div className="col-6 mb-3">
+                        <label htmlFor="com_city" className="form-label">City</label>
+                        <select className="form-control" name="com_city" id="com_city" onChange={complaintChange}>
+                          {/* <option>--- Select City ---</option> */}
+                          {!cityOption ? (
+                            <option>Select State First</option>
+                          ) : cityOption.length === 0 ? (
+                            <option>No data found</option>
+                          ) : (cityOption.map((item) => (
+                            <option value={item.id}  >{item.name}</option>
+                          ))
+                          )}
+                        </select>
+                      </div>
+                      <div className="col-12 mb-3">
+                        <label htmlFor="com_address" className="form-label">Address</label>
+                        <textarea name="com_address" id="com_address" className="form-control" onInput={complaintChange}></textarea>
+                      </div>
+                      <div className="col-12 mb-3">
+                        <label htmlFor="com_pin_code" className="form-label">Pin Code</label>
+                        <input type="number" name="com_pin_code" id="com_pin_code" className="form-control" onInput={complaintChange} />
+                      </div>
+                    </> : ''
+                  }
+
+                  <div className="col-12 mb-3">
+                    <label htmlFor="com_mobile_number" className="form-label">Alternate Mobile No.</label>
+                    <input type="number" name="com_mobile_number" id="com_mobile_number" className="form-control" onInput={complaintChange} />
+                  </div>
+                  <div className="col-12 mb-3">
+                    <label htmlFor="complaint" className="form-label">Explain complaint</label>
+                    <textarea rows="" className="form-control" name="complaint" id="complaint" onInput={complaintChange} cols=""></textarea>
+                  </div>
+                  <Modal.Footer>
+                    {disabledButton == false ? <Button type="submit" variant="primary" className="btn-black-form">Submit</Button> 
+                    : <Button type="submit" variant="primary" className="btn-black-form" disabled>Loading...</Button> }
+                  </Modal.Footer>
+                </>
+              }
             </div>
-            <div className="mb-3">
-              <label htmlFor="subject" className="form-label">Subject</label>
-              <select className="form-control" name="subject" id="subject" onChange={complaintChange}>
-                <option value="">Select Subject</option>
-                {/* <option>Battery not charge properly</option> */}
-                {!compSubject ? ''
-                : compSubject.length === 0 ? 
-                  <option value="">No data found</option>
-                : (compSubject.map((item) => 
-                  <option>{item.subject_name}</option>
-                )
-                )}
-              </select>
-            </div>
-            <div className="mb-3">
-              <label htmlFor="product" className="form-label">Product Serial Number</label>
-              {/* <select className="form-control" name="product" id="product" onChange={complaintChange}>
-                <option value="">Select Category</option>
-                {!productDetails ? (
-                    <option>Loading data...</option>
-                  ) : productDetails.length === 0 ? (
-                    <option>No data found</option>
-                  ) : (productDetails.map((item) => (
-                    <option value={item.name} data-key={item.models} >{item.name}</option>
-                  ))
-                )}
-              </select> */}
-              <input type="text" className="form-control" name="product" id="product" onInput={complaintChange}/>
-            </div>
-            <div className="mb-3">
-              <label htmlFor="com_state" className="form-label">State</label>
-              <select className="form-control" name="com_state" id="com_state" onChange={complaintChange}>
-                <option value="">--- Select State ---</option>
-                {!stateOption ? (
-                  <option>Loading data...</option>
-                ) : stateOption.length === 0 ? (
-                  <option>No data found</option>
-                ) : (stateOption.map((item) => (
-                  <option value={item.id} >{item.name}</option>
-                ))
-                )}
-              </select>
-            </div>
-            <div className="mb-3">
-              <label htmlFor="com_city" className="form-label">City</label>
-              <select className="form-control" name="com_city" id="com_city" onChange={complaintChange}>
-                {/* <option>--- Select City ---</option> */}
-                {!cityOption ? (
-                  <option>Select State First</option>
-                ) : cityOption.length === 0 ? (
-                  <option>No data found</option>
-                ) : (cityOption.map((item) => (
-                  <option value={item.id}  >{item.name}</option>
-                ))
-                )}
-              </select>
-            </div>
-            <div className="mb-3">
-              <label htmlFor="com_address" className="form-label">Address</label>
-              <textarea name="com_address" id="com_address" className="form-control" onInput={complaintChange}></textarea>
-            </div>
-            <div className="mb-3">
-              <label htmlFor="com_pin_code" className="form-label">Pin Code</label>
-              <input type="text" name="com_pin_code" id="com_pin_code" className="form-control" onInput={complaintChange} />
-            </div>
-            <div className="mb-3">
-              <label htmlFor="com_mobile_number" className="form-label">Mobile_number</label>
-              <input type="text" name="com_mobile_number" id="com_mobile_number" className="form-control" onInput={complaintChange} />
-            </div>
-            <div className="mb-3">
-              <label htmlFor="complaint" className="form-label">Write Here</label>
-              <textarea rows="" className="form-control" name="complaint" id="complaint" onInput={complaintChange} cols=""></textarea>
-            </div>
-            <Modal.Footer>
-              <Button type="submit" variant="primary" className="btn-black-form" disabled={disabledButton}>Submit</Button>
-            </Modal.Footer>
           </form>
         </Modal.Body>
       </Modal>

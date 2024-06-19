@@ -244,7 +244,8 @@ function RaisingComplaint({ userDetails }) {
             }
 
             <Modal.Footer>
-              <Button type="submit" variant="primary" className="btn-black-form" disabled={disabledButton}>Submit</Button>
+              {disabledButton == false ? <Button type="submit" variant="primary" className="btn-black-form">Submit</Button> 
+              : <Button type="submit" variant="primary" className="btn-black-form" disabled>Loading...</Button> }
             </Modal.Footer>
           </form>
         </Modal.Body>

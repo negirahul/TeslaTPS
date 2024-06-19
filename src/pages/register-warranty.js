@@ -180,55 +180,43 @@ function RegisterWarranty({ userDetails }) {
   const [warrantyCard, setWarrantyCard] = useState();
   const warrantyChange = (event) => {
     if(event.target.name === 'bill_copy'){
-      // let reader = new FileReader();
-      // reader.onload = function(event) {
-      //   let changeImage = event.target.result;
-      //   setBillCopy(changeImage);
-      // }
-      // reader.readAsDataURL(event.target.files[0]);
-      const image = event.target.files[0];
-      new Compressor(image, {
-        quality: 0.8, // 0.6 can also be used, but its not recommended to go below.
-        success: (compressedResult) => {
-          // compressedResult has the compressed file.
-          // Use the compressed file to upload the images to your server.        
-          // setCompressedFile(compressedResult);
-          // console.log(compressedResult);
-
-          var reader = new FileReader();
-          reader.readAsDataURL(compressedResult); 
-          reader.onloadend = function() {
-            var base64data = reader.result;          
-            setBillCopy(base64data);      
-            // console.log(base64data);
-          }
-        },
-      });
+      // const image = event.target.files[0];
+      // new Compressor(image, {
+      //   quality: 0.8, // 0.6 can also be used, but its not recommended to go below.
+      //   success: (compressedResult) => {
+      //     var reader = new FileReader();
+      //     reader.readAsDataURL(compressedResult); 
+      //     reader.onloadend = function() {
+      //       var base64data = reader.result;          
+      //       setBillCopy(base64data);      
+      //     }
+      //   },
+      // });
+      let reader = new FileReader();
+      reader.onload = function(event) {
+        let changeImage = event.target.result;
+        setBillCopy(changeImage);
+      }
+      reader.readAsDataURL(event.target.files[0]);
     }else if(event.target.name === 'warranty_card'){
-      const image = event.target.files[0];
-      new Compressor(image, {
-        quality: 0.8, // 0.6 can also be used, but its not recommended to go below.
-        success: (compressedResult) => {
-          // compressedResult has the compressed file.
-          // Use the compressed file to upload the images to your server.        
-          // setCompressedFile(compressedResult);
-          // console.log(compressedResult);
-
-          var reader = new FileReader();
-          reader.readAsDataURL(compressedResult); 
-          reader.onloadend = function() {
-            var base64data = reader.result;          
-            setWarrantyCard(base64data);      
-            // console.log(base64data);
-          }
-        },
-      });
-      // let reader = new FileReader();
-      // reader.onload = function(event) {
-      //   let changeImage = event.target.result;
-      //   setWarrantyCard(changeImage);
-      // }
-      // reader.readAsDataURL(event.target.files[0]);
+      // const image = event.target.files[0];
+      // new Compressor(image, {
+      //   quality: 0.8, // 0.6 can also be used, but its not recommended to go below.
+      //   success: (compressedResult) => {
+      //     var reader = new FileReader();
+      //     reader.readAsDataURL(compressedResult); 
+      //     reader.onloadend = function() {
+      //       var base64data = reader.result;          
+      //       setWarrantyCard(base64data);
+      //     }
+      //   },
+      // });
+      let reader = new FileReader();
+      reader.onload = function(event) {
+        let changeImage = event.target.result;
+        setWarrantyCard(changeImage);
+      }
+      reader.readAsDataURL(event.target.files[0]);
     }else{
       const name = event.target.name;
       const value = event.target.value;
@@ -274,7 +262,7 @@ function RegisterWarranty({ userDetails }) {
         notify("success",data.msg);
         setInputs(values => ({ ...values, generated_otp: data.otp}));
         setShowOtp(true);
-		setOtpVisible(data.otpVisible)
+		    setOtpVisible(data.otpVisible)
         if(data.registered == "NO"){
           setNeedCustinfo(true);
         }else{
@@ -320,6 +308,8 @@ function RegisterWarranty({ userDetails }) {
     if(inputs.purchase_date === undefined || inputs.purchase_date === ''){  notify("alert","Please Enter Purchase Date");return;  }
     if(inputs.entered_otp === undefined && inputs.entered_otp === ''){  notify("alert","Please Enter OTP");return;  }
     if(inputs.generated_otp != inputs.entered_otp){   notify("alert","Please Enter Correct OTP");return;  }
+    if(billCopy === undefined || billCopy === ''){  notify("alert","Please upload bill copy");return;  }
+    if(warrantyCard === undefined || billCopy === ''){  notify("alert","Please upload warranty card");return;  }
     
     setdisabledButton(true);
     axios.post( process.env.REACT_APP_ADMIN_URL + 'warrantyAddByTps.php', {inputs, billCopy, warrantyCard, userDetails}).then(function(response){
@@ -668,7 +658,8 @@ function RegisterWarranty({ userDetails }) {
                       <input type="file" name="warranty_card" id="warranty_card" className="form-control" onChange={warrantyChange} accept="image/*" required/>
                     </div>
                     <Modal.Footer>
-                      <Button type="submit" variant="primary" className="btn-black-form">Submit</Button>
+                      {disabledButton == false ? <Button type="submit" variant="primary" className="btn-black-form">Submit</Button> 
+                      : <Button type="submit" variant="primary" className="btn-black-form" disabled>Loading...</Button> }
                     </Modal.Footer>
                     
                   </>
